@@ -6,16 +6,16 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   ai-summarize:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout main branch
+      - name: Checkout master branch
         uses: actions/checkout@v3
         with:
-          ref: main
+          ref: master
           fetch-depth: 0
           token: ${{ secrets.GH_TOKEN }}
       
@@ -63,7 +63,7 @@ jobs:
             echo "No changes to commit."
           else
             git commit -m "Update AI summarize output [skip ci]"
-            git push origin main
+            git push origin master
           fi
       
       - name: Trigger Copy News Article workflow
