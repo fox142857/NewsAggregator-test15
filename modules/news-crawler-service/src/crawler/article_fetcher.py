@@ -109,13 +109,7 @@ class ArticleContentFetcher:
                 # 从该部分内容中提取所有链接
                 links = re.findall(r'- \[(.*?)\]\((http://.*?)\)', section_content)
                 
-                if len(links) >= 2:  # 确保有至少两个链接
-                    # 获取第二条链接
-                    article_url = links[1][1]
-                    article_title = links[1][0]
-                    self.logger.info(f"找到第二条链接: {article_title}, URL: {article_url}")
-                    return article_url, date_string
-                elif len(links) == 1:  # 只有一个链接时
+                if len(links) >= 1:  # 大于等于一个链接时
                     article_url = links[0][1]
                     article_title = links[0][0]
                     self.logger.info(f"只找到一条链接: {article_title}, URL: {article_url}")
