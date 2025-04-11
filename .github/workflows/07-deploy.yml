@@ -1,4 +1,4 @@
-name: 04 Deploy VuePress site to GitHub Pages
+name: 07-deploy
 
 on:
   repository_dispatch:
@@ -11,7 +11,7 @@ permissions:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 5  # 超时5分钟则 Job 自动取消
+    timeout-minutes: 5
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -42,7 +42,7 @@ jobs:
       - name: Send email alert for deploy result
         if: always()
         run: |
-          WORKFLOW_FILE="04-deploy.yml"
+          WORKFLOW_FILE="07-deploy.yml"
           if [ "${{ job.status }}" = "Success" ]; then
             ORIGINAL_SUBJECT="${WORKFLOW_FILE}: Deployment succeeded"
             CLASSIFICATION="Info"

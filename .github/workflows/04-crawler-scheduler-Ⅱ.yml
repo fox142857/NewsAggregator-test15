@@ -1,4 +1,4 @@
-name: 02 Crawler Scheduler II
+name: 04-crawler-scheduler-Ⅱ
 
 on:
   repository_dispatch:
@@ -50,19 +50,19 @@ jobs:
             exit 1
           fi
 
-      - name: Trigger copy-article workflow
+      - name: Trigger ai-summarize workflow
         if: success()
         run: |
           curl -X POST \
             -H "Accept: application/vnd.github.v3+json" \
             -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
             https://api.github.com/repos/${{ github.repository }}/dispatches \
-            -d '{"event_type": "copy-article"}'
+            -d '{"event_type": "ai-summarize"}'
 
       - name: Trigger email alert for get-article result
         if: always()
         run: |
-          WORKFLOW_FILE="02-crawler-scheduler-II.yml"
+          WORKFLOW_FILE="04-crawler-scheduler-Ⅱ.yml"
           if [ "${{ job.status }}" = "Success" ]; then
             ORIGINAL_SUBJECT="${WORKFLOW_FILE}: Get-article succeeded"
             CLASSIFICATION="Info"

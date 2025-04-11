@@ -1,4 +1,4 @@
-name: 03 Copy News List
+name: 03-copy-newslist
 
 on:
   repository_dispatch:
@@ -19,7 +19,6 @@ jobs:
         id: determine_src
         shell: bash
         run: |
-          # 设置中国时区
           export TZ='Asia/Shanghai'
           TODAY=$(date +'%Y%m%d')
           YESTERDAY=$(date -d "yesterday" +'%Y%m%d')
@@ -73,7 +72,7 @@ jobs:
             https://api.github.com/repos/${{ github.repository }}/dispatches \
             -d "{\"event_type\": \"send-email-alert\", \"client_payload\": {\"subject\": \"${FINAL_SUBJECT}\", \"body\": \"${FINAL_BODY}\"}}"
 
-      - name: Trigger email alert for commit result and deploy trigger
+      - name: Trigger email alert for commit result
         if: steps.determine_src.outputs.source_file != ''
         run: |
           WORKFLOW_FILE="03-copy-newslist.yml"
@@ -81,12 +80,6 @@ jobs:
             ORIGINAL_SUBJECT="${WORKFLOW_FILE}: Update successful"
             CLASSIFICATION="Info"
             DETAIL="Result: The markdown file was copied and committed successfully."
-            # 成功时同时触发 deploy 工作流
-            curl -X POST \
-              -H "Accept: application/vnd.github.v3+json" \
-              -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
-              https://api.github.com/repos/${{ github.repository }}/dispatches \
-              -d "{\"event_type\": \"deploy-trigger\", \"client_payload\": {\"subject\": \"Deploy triggered by Copy News List\", \"body\": \"${WORKFLOW_FILE}\n${ORIGINAL_SUBJECT}\nTriggering deploy workflow.\"}}"
           else
             ORIGINAL_SUBJECT="${WORKFLOW_FILE}: Run failure during commit/push"
             CLASSIFICATION="Error"
@@ -99,3 +92,12 @@ jobs:
             -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
             https://api.github.com/repos/${{ github.repository }}/dispatches \
             -d "{\"event_type\": \"send-email-alert\", \"client_payload\": {\"subject\": \"${FINAL_SUBJECT}\", \"body\": \"${FINAL_BODY}\"}}"
+
+      - name: Trigger 02-crawler-scheduler-Ⅱ workflow
+        if: steps.determine_src.outputs.source_file != '' && steps.commit.outputs.commit_status == 'success'
+        run: |
+          curl -X POST \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
+            https://api.github.com/repos/${{ github.repository }}/dispatches \
+            -d '{"event_type": "run-get-article"}'

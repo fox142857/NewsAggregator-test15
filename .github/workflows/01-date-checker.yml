@@ -1,4 +1,4 @@
-name: 01 Date Checker
+name: 01-date-checker
 
 on:
   schedule:
