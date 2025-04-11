@@ -204,8 +204,8 @@ class AISummarizer:
             
             # 创建总结内容
             content = "---\n"
-            content += f"title: AI总结: {original_metadata.get('title', '未知标题')}\n"
-            content += f"original_title: {original_metadata.get('title', '未知标题')}\n"
+            content += f"title: \"AI总结: {original_metadata.get('title', '未知标题')}\"\n"
+            content += f"original_title: \"{original_metadata.get('title', '未知标题')}\"\n"
             content += f"date: {original_metadata.get('date', datetime.now(pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d'))}\n"
             content += f"source: {original_metadata.get('source', '人民日报')}\n"
             content += f"summarized_at: {summary_data['timestamp']}\n"
