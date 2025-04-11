@@ -20,6 +20,7 @@ sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'src'))
 from src.main import process_news
 from src.crawler.article_fetcher import fetch_first_article
 from src.converter.article_formatter import process_articles
+from src.article_main import process_article
 
 def parse_args():
     """解析命令行参数"""
@@ -34,12 +35,12 @@ def parse_args():
     crawl_parser.add_argument('-o', '--output_dir', help='输出目录路径')
     crawl_parser.add_argument('--only-article', action='store_true', help='只爬取文章详情，跳过版面爬取')
     
-    # 处理文章命令
-    process_parser = subparsers.add_parser('process', help='处理已爬取的文章')
-    process_parser.add_argument('-i', '--input_dir', help='输入目录路径，默认为output目录')
-    process_parser.add_argument('-o', '--output_dir', help='输出目录路径，默认与输入目录相同')
-    process_parser.add_argument('-f', '--format', choices=['markdown', 'json', 'all'], 
-                             default='markdown', help='输出格式 (默认: markdown)')
+    # 单篇文章爬取与处理命令
+    article_parser = subparsers.add_parser('get-article', help='爬取并处理单篇文章')
+    article_parser.add_argument('-d', '--date', help='指定日期，格式: YYYYMMDD，默认为今天')
+    article_parser.add_argument('-o', '--output_dir', help='输出目录路径')
+    article_parser.add_argument('-f', '--format', choices=['markdown', 'json', 'all'], 
+                              default='markdown', help='输出格式 (默认: markdown)')
     
     # 版本命令
     version_parser = subparsers.add_parser('version', help='显示版本信息')
@@ -80,26 +81,21 @@ def main():
         
         return 0 if success else 1
     
-    elif args.command == 'process':
+    elif args.command == 'get-article':
         # 使用中国时间作为日志记录
         china_time = datetime.now(pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')
-        print(f"[{china_time}] 开始处理已爬取的文章...")
+        print(f"[{china_time}] 开始爬取并处理单篇文章...")
         
-        # 处理文章
-        result = process_articles(
-            input_dir=args.input_dir, 
-            output_dir=args.output_dir, 
+        # 调用article_main.py中的process_article函数
+        success = process_article(
+            date=args.date,
+            output_dir=args.output_dir,
             format_type=args.format
         )
         
-        success = len(result.get('failed', [])) == 0
-        
-        # 打印统计信息
-        print(f"处理完成. 成功: {len(result.get('success', []))}, 失败: {len(result.get('failed', []))}")
-        
         # 结束时间
         china_time = datetime.now(pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')
-        print(f"[{china_time}] 处理任务{'成功' if success else '失败'}")
+        print(f"[{china_time}] 文章处理任务{'成功' if success else '失败'}")
         
         return 0 if success else 1
         
