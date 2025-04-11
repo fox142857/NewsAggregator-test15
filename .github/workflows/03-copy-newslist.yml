@@ -1,0 +1,101 @@
+name: 03 Copy News List
+
+on:
+  repository_dispatch:
+    types: [copy-newslist]
+  workflow_dispatch:
+
+jobs:
+  copy-news:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout master branch
+        uses: actions/checkout@v3
+        with:
+          ref: master
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Determine source markdown file
+        id: determine_src
+        shell: bash
+        run: |
+          # 设置中国时区
+          export TZ='Asia/Shanghai'
+          TODAY=$(date +'%Y%m%d')
+          YESTERDAY=$(date -d "yesterday" +'%Y%m%d')
+          SRC_TODAY="modules/news-crawler-service/src/output/${TODAY}.md"
+          SRC_YESTERDAY="modules/news-crawler-service/src/output/${YESTERDAY}.md"
+          echo "Today: $TODAY, Yesterday: $YESTERDAY"
+          if [ -f "$SRC_TODAY" ]; then
+            echo "Found today's file: $SRC_TODAY"
+            echo "source_file=$SRC_TODAY" >> $GITHUB_OUTPUT
+          elif [ -f "$SRC_YESTERDAY" ]; then
+            echo "Today's file not found. Found yesterday's file: $SRC_YESTERDAY"
+            echo "source_file=$SRC_YESTERDAY" >> $GITHUB_OUTPUT
+          else
+            echo "Neither today's nor yesterday's markdown file exists."
+            echo "source_file=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Copy markdown file to news-vuepress-docs
+        if: steps.determine_src.outputs.source_file != ''
+        run: |
+          DST_FILE="modules/news-vuepress-docs/docs/today/today-news.md"
+          echo "Copying file '${{ steps.determine_src.outputs.source_file }}' to ${DST_FILE}"
+          cp "${{ steps.determine_src.outputs.source_file }}" "$DST_FILE"
+
+      - name: Commit and push copied news list
+        if: steps.determine_src.outputs.source_file != ''
+        id: commit
+        run: |
+          git config --global user.name "fox142857"
+          git config --global user.email "fox142857@foxmail.com"
+          git add -f modules/news-vuepress-docs/docs/today/today-news.md
+          if git commit -m "Update today's news markdown [skip ci]"; then
+            echo "commit_status=success" >> $GITHUB_OUTPUT
+          else
+            echo "commit_status=failure" >> $GITHUB_OUTPUT
+          fi
+          git push origin master || echo "push failed"
+
+      - name: Trigger email alert for missing file
+        if: steps.determine_src.outputs.source_file == ''
+        run: |
+          WORKFLOW_FILE="03-copy-newslist.yml"
+          ORIGINAL_SUBJECT="${WORKFLOW_FILE}: Markdown file missing"
+          CLASSIFICATION="Warn"
+          DETAIL="Result: No markdown file was found for today or yesterday in modules/news-crawler-service/src/output. Please check the crawler."
+          FINAL_SUBJECT="Workflow Alert: ${CLASSIFICATION}"
+          FINAL_BODY="${WORKFLOW_FILE}\n${ORIGINAL_SUBJECT}\n${DETAIL}"
+          curl -X POST \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
+            https://api.github.com/repos/${{ github.repository }}/dispatches \
+            -d "{\"event_type\": \"send-email-alert\", \"client_payload\": {\"subject\": \"${FINAL_SUBJECT}\", \"body\": \"${FINAL_BODY}\"}}"
+
+      - name: Trigger email alert for commit result and deploy trigger
+        if: steps.determine_src.outputs.source_file != ''
+        run: |
+          WORKFLOW_FILE="03-copy-newslist.yml"
+          if [ "${{ steps.commit.outputs.commit_status }}" = "success" ]; then
+            ORIGINAL_SUBJECT="${WORKFLOW_FILE}: Update successful"
+            CLASSIFICATION="Info"
+            DETAIL="Result: The markdown file was copied and committed successfully."
+            # 成功时同时触发 deploy 工作流
+            curl -X POST \
+              -H "Accept: application/vnd.github.v3+json" \
+              -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
+              https://api.github.com/repos/${{ github.repository }}/dispatches \
+              -d "{\"event_type\": \"deploy-trigger\", \"client_payload\": {\"subject\": \"Deploy triggered by Copy News List\", \"body\": \"${WORKFLOW_FILE}\n${ORIGINAL_SUBJECT}\nTriggering deploy workflow.\"}}"
+          else
+            ORIGINAL_SUBJECT="${WORKFLOW_FILE}: Run failure during commit/push"
+            CLASSIFICATION="Error"
+            DETAIL="Result: The markdown file was copied but commit/push failed. Please check the logs for errors."
+          fi
+          FINAL_SUBJECT="Workflow Alert: ${CLASSIFICATION}"
+          FINAL_BODY="${WORKFLOW_FILE}\n${ORIGINAL_SUBJECT}\n${DETAIL}"
+          curl -X POST \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
+            https://api.github.com/repos/${{ github.repository }}/dispatches \
+            -d "{\"event_type\": \"send-email-alert\", \"client_payload\": {\"subject\": \"${FINAL_SUBJECT}\", \"body\": \"${FINAL_BODY}\"}}"

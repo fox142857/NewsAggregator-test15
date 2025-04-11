@@ -1,0 +1,63 @@
+name: 01 Date Checker
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  check-date:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout master branch
+        uses: actions/checkout@v3
+        with:
+          ref: master
+          fetch-depth: 0
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Check if today's markdown file exists
+        id: check_file
+        shell: bash
+        run: |
+          export TZ='Asia/Shanghai'
+          TODAY=$(date +'%Y%m%d')
+          echo "Today is: $TODAY"
+          FILE="modules/news-crawler-service/src/output/${TODAY}.md"
+          if [ -f "$FILE" ]; then
+            echo "Found file: $FILE"
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "File not found: $FILE"
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Trigger crawler workflow if file not exists
+        if: steps.check_file.outputs.exists == 'false'
+        run: |
+          curl -X POST \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
+            https://api.github.com/repos/${{ github.repository }}/dispatches \
+            -d '{"event_type": "run-crawler"}'
+
+      - name: Send email alert for date check result
+        if: always()
+        run: |
+          WORKFLOW_FILE="01-date-checker.yml"
+          if [ "${{ steps.check_file.outputs.exists }}" = "true" ]; then
+            ORIGINAL_SUBJECT="${WORKFLOW_FILE}: File exists"
+            CLASSIFICATION="Info"
+            DETAIL="Result: Today's markdown file exists."
+          else
+            ORIGINAL_SUBJECT="${WORKFLOW_FILE}: File missing"
+            CLASSIFICATION="Warn"
+            DETAIL="Result: Today's markdown file does not exist. The crawler will be triggered."
+          fi
+          FINAL_SUBJECT="Workflow Alert: ${CLASSIFICATION}"
+          FINAL_BODY="${WORKFLOW_FILE}\n${ORIGINAL_SUBJECT}\n${DETAIL}"
+          curl -X POST \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
+            https://api.github.com/repos/${{ github.repository }}/dispatches \
+            -d "{\"event_type\": \"send-email-alert\", \"client_payload\": {\"subject\": \"${FINAL_SUBJECT}\", \"body\": \"${FINAL_BODY}\"}}"

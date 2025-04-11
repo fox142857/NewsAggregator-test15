@@ -1,0 +1,27 @@
+{
+  "name": "peoples-daily-news-aggregator",
+  "version": "1.0.0",
+  "description": "人民日报新闻智能聚合系统 - 简化版",
+  "main": "index.js",
+  "scripts": {
+    "docs:dev": "npx vuepress dev docs",
+    "docs:build": "npx vuepress build docs",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "人民日报",
+    "新闻聚合",
+    "智能爬虫"
+  ],
+  "author": "NewsAggregator Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@vuepress/bundler-vite": "^2.0.0-rc.20",
+    "@vuepress/plugin-back-to-top": "^2.0.0-rc.91",
+    "@vuepress/plugin-copy-code": "^2.0.0-rc.91",
+    "@vuepress/plugin-medium-zoom": "^2.0.0-rc.91",
+    "@vuepress/theme-default": "^2.0.0-rc.87",
+    "sass-embedded": "^1.86.0",
+    "vuepress": "^2.0.0-rc.20"
+  }
+}

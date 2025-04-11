@@ -1,0 +1,23 @@
+name: Send Email Alert
+
+on:
+  repository_dispatch:
+    types: [send-email-alert]
+  workflow_dispatch:
+
+jobs:
+  send-email:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send email alert
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.qq.com
+          server_port: 465
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          # 此处主题由上游工作流统一设定为 Info / Warn / Error
+          subject: "${{ github.event.client_payload.subject }}"
+          body: "${{ github.event.client_payload.body }}"
+          to: "fox142857@foxmail.com"
+          from: "fox142857@foxmail.com"
