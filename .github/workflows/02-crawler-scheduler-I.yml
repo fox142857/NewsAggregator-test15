@@ -1,4 +1,4 @@
-name: 02 Crawler Scheduler
+name: 02 Crawler Scheduler I
 
 on:
   repository_dispatch:
@@ -73,7 +73,6 @@ jobs:
       - name: Merge changes from crawler-service branch into master
         run: |
           set -e
-          # 尝试合并，如果合并冲突则自动解决输出目录中所有文件冲突，始终保留 crawler-service 分支的版本
           if ! git merge -X theirs --allow-unrelated-histories --no-ff crawler-service -m "Merge crawler output into master [skip ci]"; then
             echo "Merge conflict detected. Auto-resolving all conflicts in output directory..."
             git checkout --theirs modules/news-crawler-service/src/output/
@@ -96,10 +95,19 @@ jobs:
             https://api.github.com/repos/${{ github.repository }}/dispatches \
             -d '{"event_type": "copy-newslist"}'
 
+      - name: Trigger run-get-article workflow
+        if: success()
+        run: |
+          curl -X POST \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
+            https://api.github.com/repos/${{ github.repository }}/dispatches \
+            -d '{"event_type": "run-get-article"}'
+
       - name: Trigger email alert for crawler result
         if: always()
         run: |
-          WORKFLOW_FILE="02-crawler-scheduler.yml"
+          WORKFLOW_FILE="02-crawler-scheduler-I.yml"
           if [ "${{ job.status }}" = "Success" ]; then
             ORIGINAL_SUBJECT="${WORKFLOW_FILE}: Crawl succeeded"
             CLASSIFICATION="Info"
