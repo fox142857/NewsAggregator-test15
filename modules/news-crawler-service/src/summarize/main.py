@@ -24,18 +24,23 @@ logging.basicConfig(
 
 logger = logging.getLogger("AISummarizeMain")
 
-def run_summarize(api_key=None, output_dir=None):
+def run_summarize(api_key=None, output_dir=None, use_mock=False):
     """运行AI总结流程
     
     Args:
         api_key (str, optional): DeepSeek API密钥
         output_dir (str, optional): 输出目录路径
+        use_mock (bool, optional): 是否使用模拟模式，不调用实际API
         
     Returns:
         bool: 操作是否成功
     """
     china_time = datetime.now(pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')
     logger.info(f"AI内容总结流程开始 (北京时间: {china_time})")
+    
+    # 如果使用模拟模式，输出提示
+    if use_mock:
+        logger.info("使用模拟模式，将不会调用真实的DeepSeek API")
     
     # 1. 查找匹配的文件
     logger.info("第一步: 查找匹配的文件")
@@ -68,7 +73,7 @@ def run_summarize(api_key=None, output_dir=None):
     
     # 3. 调用DeepSeek API进行内容总结
     logger.info("第三步: 调用DeepSeek API进行内容总结")
-    summarizer = AISummarizer(api_key=api_key, output_dir=output_dir)
+    summarizer = AISummarizer(api_key=api_key, output_dir=output_dir, use_mock=use_mock)
     
     summary_data = summarizer.summarize(content_data)
     
@@ -97,10 +102,20 @@ def main(args=None):
         parser = argparse.ArgumentParser(description='人民日报文章AI总结工具')
         parser.add_argument('-k', '--api_key', help='DeepSeek API密钥，如未提供则使用DEEPSEEK_API_KEY环境变量')
         parser.add_argument('-o', '--output_dir', help='输出目录路径')
+        parser.add_argument('-m', '--mock', action='store_true', help='使用模拟模式，不调用实际API')
+        parser.add_argument('-v', '--verbose', action='store_true', help='输出详细日志')
         args = parser.parse_args()
+        
+        # 设置日志级别
+        if args.verbose:
+            logging.basicConfig(level=logging.DEBUG)
     
     # 执行总结流程
-    success = run_summarize(api_key=args.api_key, output_dir=args.output_dir)
+    success = run_summarize(
+        api_key=args.api_key, 
+        output_dir=args.output_dir,
+        use_mock=args.mock if hasattr(args, 'mock') else False
+    )
     
     return 0 if success else 1
 

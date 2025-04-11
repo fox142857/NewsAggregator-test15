@@ -45,8 +45,10 @@ def parse_args():
     
     # AI总结命令
     summarize_parser = subparsers.add_parser('ai-summarize', help='使用AI总结文章内容')
-    summarize_parser.add_argument('-k', '--api_key', help='DeepSeek API密钥，如未提供则使用DEEPSEEK_API_KEY环境变量')
+    summarize_parser.add_argument('api_key', nargs='?', help='DeepSeek API密钥，如未提供则使用DEEPSEEK_API_KEY环境变量')
     summarize_parser.add_argument('-o', '--output_dir', help='输出目录路径')
+    summarize_parser.add_argument('-m', '--mock', action='store_true', help='使用模拟模式，不调用实际API')
+    summarize_parser.add_argument('-v', '--verbose', action='store_true', help='输出详细日志')
     
     # 版本命令
     version_parser = subparsers.add_parser('version', help='显示版本信息')
@@ -110,10 +112,16 @@ def main():
         china_time = datetime.now(pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')
         print(f"[{china_time}] 开始进行文章AI总结...")
         
+        # 设置日志级别
+        if hasattr(args, 'verbose') and args.verbose:
+            import logging
+            logging.basicConfig(level=logging.INFO)
+        
         # 调用summarize模块中的run_summarize函数
         success = run_summarize(
             api_key=args.api_key,
-            output_dir=args.output_dir
+            output_dir=args.output_dir,
+            use_mock=args.mock if hasattr(args, 'mock') else False
         )
         
         # 结束时间
