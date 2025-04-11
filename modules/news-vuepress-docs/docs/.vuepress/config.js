@@ -4,7 +4,7 @@ import { defineUserConfig } from 'vuepress'
 import { path } from '@vuepress/utils'
 
 export default defineUserConfig({
-    base: '/NewsAggregator-test12/',
+    base: '/NewsAggregator-test15/',
 
     // 添加客户端配置文件路径
     clientConfigFile: path.resolve(__dirname, './client.js'),
