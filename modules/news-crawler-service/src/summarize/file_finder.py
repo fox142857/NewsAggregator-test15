@@ -4,6 +4,8 @@
 import os
 import re
 import logging
+import argparse
+import sys
 from datetime import datetime, timedelta
 import pytz
 
@@ -106,3 +108,41 @@ class FileFinder:
             logger.error(f"查找文件时出错: {str(e)}")
         
         return matching_files 
+
+if __name__ == "__main__":
+    # 配置命令行参数
+    parser = argparse.ArgumentParser(description='文件查找工具')
+    parser.add_argument('-o', '--output_dir', help='输出目录路径，默认为src/output')
+    parser.add_argument('-v', '--verbose', action='store_true', help='输出详细日志')
+    args = parser.parse_args()
+    
+    # 设置日志级别
+    if args.verbose:
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.INFO)
+    
+    try:
+        # 创建文件查找器实例
+        finder = FileFinder(output_dir=args.output_dir)
+        
+        # 查找匹配的文件
+        print(f"正在查找匹配的文件...")
+        matching_files = finder.find_matching_files()
+        
+        # 显示结果
+        if matching_files:
+            print(f"\n找到 {len(matching_files)} 个匹配的文件:")
+            for i, file_path in enumerate(matching_files, 1):
+                print(f"{i}. {os.path.basename(file_path)} ({os.path.getsize(file_path)} 字节)")
+        else:
+            print("未找到匹配的文件。")
+        
+        # 输出当前和昨天的日期 (用于调试)
+        print(f"\n当前日期: {finder.get_current_date()}")
+        print(f"昨天日期: {finder.get_yesterday_date()}")
+        
+        sys.exit(0)
+    except Exception as e:
+        print(f"错误: {str(e)}")
+        sys.exit(1) 

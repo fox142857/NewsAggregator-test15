@@ -8,6 +8,8 @@ from datetime import datetime
 import pytz
 import requests
 import re
+import argparse
+import sys
 
 # 导入Token计数器
 from src.summarize.token_counter import TokenCounter
@@ -297,3 +299,135 @@ class AISummarizer:
 结果：为了完整展示功能，系统提供了这个模板化的总结。实际使用时，请提供有效的DeepSeek API密钥。"""
         
         return mock_summary 
+
+if __name__ == "__main__":
+    # 配置命令行参数
+    parser = argparse.ArgumentParser(description='AI总结工具')
+    parser.add_argument('-f', '--file', help='要总结的文件路径')
+    parser.add_argument('-k', '--api_key', help='DeepSeek API密钥，如未提供则使用DEEPSEEK_API_KEY环境变量')
+    parser.add_argument('-o', '--output_dir', help='输出目录路径')
+    parser.add_argument('-m', '--mock', action='store_true', help='使用模拟模式，不调用实际API')
+    parser.add_argument('-t', '--text', help='直接提供要总结的文本内容')
+    parser.add_argument('-v', '--verbose', action='store_true', help='输出详细日志')
+    args = parser.parse_args()
+    
+    # 设置日志级别
+    if args.verbose:
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.INFO)
+    
+    try:
+        # 创建AI总结器实例
+        summarizer = AISummarizer(
+            api_key=args.api_key, 
+            output_dir=args.output_dir,
+            use_mock=args.mock
+        )
+        
+        # 准备内容数据
+        content_data = None
+        
+        if args.file:
+            # 从文件读取内容
+            if not os.path.exists(args.file):
+                print(f"错误: 文件不存在: {args.file}")
+                sys.exit(1)
+                
+            try:
+                with open(args.file, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                
+                # 简单解析Markdown前的元数据（frontmatter）
+                metadata = {}
+                main_content = content
+                
+                # 检查是否有frontmatter（以---开始和结束的部分）
+                if content.startswith('---'):
+                    end_index = content.find('---', 3)
+                    if end_index > 0:
+                        frontmatter = content[3:end_index].strip()
+                        main_content = content[end_index+3:].strip()
+                        
+                        # 解析frontmatter中的键值对
+                        for line in frontmatter.split('\n'):
+                            if ':' in line:
+                                key, value = line.split(':', 1)
+                                metadata[key.strip()] = value.strip()
+                
+                content_data = {
+                    'file_path': args.file,
+                    'file_name': os.path.basename(args.file),
+                    'metadata': metadata,
+                    'content': main_content
+                }
+                
+                print(f"已读取文件: {args.file}")
+                print(f"元数据: {metadata}")
+                print(f"内容长度: {len(main_content)} 字符")
+                
+            except Exception as e:
+                print(f"读取文件时出错: {str(e)}")
+                sys.exit(1)
+                
+        elif args.text:
+            # 使用直接提供的文本
+            content_data = {
+                'file_path': 'direct_input.md',
+                'file_name': 'direct_input.md',
+                'metadata': {
+                    'title': '直接输入的内容',
+                    'date': datetime.now(pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d')
+                },
+                'content': args.text
+            }
+            
+            print(f"使用直接输入的文本，长度: {len(args.text)} 字符")
+            
+        else:
+            print("错误: 必须提供文件路径或文本内容")
+            parser.print_help()
+            sys.exit(1)
+        
+        # 进行内容总结
+        print("\n正在进行内容总结...")
+        summary_data = summarizer.summarize(content_data)
+        
+        if not summary_data:
+            print("总结失败")
+            sys.exit(1)
+            
+        print("\n总结完成!")
+        print(f"总结内容预览:\n{summary_data['summary'][:200]}...")
+        
+        # 保存总结结果
+        if args.output_dir:
+            print("\n正在保存总结结果...")
+            output_file = summarizer.save_summary(summary_data)
+            
+            if output_file:
+                print(f"总结已保存到: {output_file}")
+            else:
+                print("保存总结失败")
+        else:
+            # 不保存，只输出全部总结内容
+            print("\n完整总结内容:")
+            print("-" * 50)
+            print(summary_data['summary'])
+            print("-" * 50)
+            
+            # 输出token使用情况
+            if 'tokens' in summary_data:
+                tokens = summary_data['tokens']
+                print(f"\nToken使用情况:")
+                print(f"- 输入tokens: {tokens.get('input', 0)}")
+                print(f"- 输出字符数: {tokens.get('output', 0)}")
+                print(f"- 估算成本: ${tokens.get('estimated_cost', 0):.6f}")
+        
+        sys.exit(0)
+    except KeyboardInterrupt:
+        print("\n操作已取消")
+        sys.exit(0)
+    except Exception as e:
+        print(f"错误: {str(e)}")
+        sys.exit(1) 

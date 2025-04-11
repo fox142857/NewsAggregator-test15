@@ -4,6 +4,8 @@
 import re
 import logging
 import unicodedata
+import argparse
+import sys
 
 logger = logging.getLogger("TokenCounter")
 
@@ -133,3 +135,87 @@ class TokenCounter:
             return 'CJK' in unicodedata.name(char)
         except:
             return False 
+
+if __name__ == "__main__":
+    # 配置命令行参数
+    parser = argparse.ArgumentParser(description='Token计数器工具')
+    parser.add_argument('text', nargs='?', help='要计算token的文本。如不提供则从标准输入读取')
+    parser.add_argument('-f', '--file', help='要计算token的文件路径')
+    parser.add_argument('-c', '--chinese', action='store_true', help='输出是否主要为中文')
+    parser.add_argument('-e', '--estimate', type=int, help='估算指定字数的token数量')
+    parser.add_argument('-v', '--verbose', action='store_true', help='输出详细日志')
+    args = parser.parse_args()
+    
+    # 设置日志级别
+    if args.verbose:
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.INFO)
+    
+    try:
+        # 创建Token计数器实例
+        counter = TokenCounter()
+        
+        if args.estimate:
+            # 估算指定字数的token数量
+            tokens = counter.estimate_output_tokens(args.estimate, args.chinese)
+            print(f"估算 {args.estimate} 字的输出约为 {tokens} tokens")
+            # 计算成本
+            cost = counter.estimate_cost(0, tokens)
+            print(f"估算成本: ${cost:.6f}")
+            sys.exit(0)
+        
+        # 获取要计算token的文本
+        text = None
+        if args.file:
+            # 从文件读取
+            with open(args.file, 'r', encoding='utf-8') as f:
+                text = f.read()
+            print(f"已读取文件: {args.file}, 字符数: {len(text)}")
+        elif args.text:
+            # 使用命令行参数
+            text = args.text
+        else:
+            # 从标准输入读取
+            print("请输入要计算token的文本 (Ctrl+D结束输入):")
+            text = sys.stdin.read()
+        
+        if not text:
+            print("错误: 未提供文本")
+            sys.exit(1)
+        
+        # 计算token数量
+        tokens = counter.count_tokens(text)
+        
+        # 创建模拟消息以估算输入token
+        messages = [
+            {"role": "system", "content": "你是一个助手"},
+            {"role": "user", "content": text}
+        ]
+        input_tokens = counter.estimate_input_tokens(messages)
+        
+        # 计算成本
+        # 假设输出token是输入的一半
+        output_tokens = tokens // 2
+        cost = counter.estimate_cost(input_tokens, output_tokens)
+        
+        print(f"\n文本统计:")
+        print(f"- 字符数: {len(text)}")
+        print(f"- 预估token数: {tokens}")
+        print(f"- 作为API输入的token数: {input_tokens}")
+        print(f"- 假设输出token数: {output_tokens}")
+        print(f"- 预估API调用成本: ${cost:.6f}")
+        
+        # 字符类型统计
+        chinese_chars = sum(1 for char in text if counter._is_chinese(char))
+        print(f"\n字符类型分布:")
+        print(f"- 中文字符: {chinese_chars} ({chinese_chars/len(text)*100:.1f}%)")
+        print(f"- 非中文字符: {len(text) - chinese_chars} ({(len(text) - chinese_chars)/len(text)*100:.1f}%)")
+        
+        sys.exit(0)
+    except KeyboardInterrupt:
+        print("\n操作已取消")
+        sys.exit(0)
+    except Exception as e:
+        print(f"错误: {str(e)}")
+        sys.exit(1) 
