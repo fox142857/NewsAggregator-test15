@@ -120,6 +120,13 @@ class ArticleParser:
                     if "版：" in version_text:
                         version = version_text
             
+            # 提取版面号
+            version_number = "01"  # 默认版面号
+            if version:
+                version_match = re.search(r'第(\d+)版', version)
+                if version_match:
+                    version_number = version_match.group(1).zfill(2)  # 确保两位数
+            
             # 提取正文内容
             content = ""
             content_selectors = [
@@ -153,13 +160,25 @@ class ArticleParser:
             if url_match:
                 original_url = url_match.group(1)
             
+            # 尝试从URL中提取文章编号
+            article_number = "01"  # 默认文章序号
+            if original_url:
+                content_match = re.search(r'content_(\d+)\.html', original_url)
+                if content_match:
+                    # 仅使用末尾几位数字作为文章序号
+                    content_id = content_match.group(1)
+                    if len(content_id) > 2:
+                        article_number = content_id[-2:].zfill(2)  # 使用最后两位作为序号
+            
             article_info = {
                 'title': title,
                 'author': author,
                 'date': date,
                 'version': version,
                 'content': content,
-                'original_url': original_url
+                'original_url': original_url,
+                'version_number': version_number,
+                'article_number': article_number
             }
             
             self.logger.info(f"成功解析文章：{title}")
@@ -208,15 +227,34 @@ class ArticleParser:
             else:
                 # 使用当前日期
                 date = datetime.now(pytz.timezone('Asia/Shanghai')).strftime('%Y年%m月%d日')
+                
+            # 提取版面号
+            version_number = "01"  # 默认版面号
+            if original_url:
+                version_match = re.search(r'node_(\d+)\.html', original_url)
+                if version_match:
+                    version_number = version_match.group(1)
+            
+            # 提取文章序号
+            article_number = "01"  # 默认文章序号
+            if original_url:
+                content_match = re.search(r'content_(\d+)\.html', original_url)
+                if content_match:
+                    # 可以根据需要处理文章编号，这里简单取最后两位
+                    content_id = content_match.group(1)
+                    if len(content_id) > 2:
+                        article_number = content_id[-2:].zfill(2)
             
             # 对于剩余字段使用默认值
             article_info = {
                 'title': title,
                 'author': "人民日报",
                 'date': date,
-                'version': "01版",
+                'version': f"第{version_number}版",
                 'content': article_content,
-                'original_url': original_url
+                'original_url': original_url,
+                'version_number': version_number,
+                'article_number': article_number
             }
             
             self.logger.info(f"成功解析文章内容：{title}")
@@ -321,6 +359,8 @@ class ArticleParser:
                 <span>日期: {article_info['date']}</span>
                 <br>
                 <span>版面: {article_info['version']}</span>
+                <br>
+                <span>版面号: {article_info['version_number']}，文章序号: {article_info['article_number']}</span>
             </div>
         </div>
         

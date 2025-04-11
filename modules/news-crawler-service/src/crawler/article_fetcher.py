@@ -57,13 +57,13 @@ class ArticleContentFetcher:
         self.parser = ArticleParser()
     
     def get_article_url_from_md(self, date_string=None):
-        """从markdown文件中获取01版的第二条链接
+        """从markdown文件中获取01版的第一条链接
         
         Args:
             date_string (str, optional): 日期字符串YYYYMMDD. 默认为None，表示当天.
             
         Returns:
-            tuple: (文章URL, 日期字符串YYYYMMDD)
+            tuple: (文章URL, 日期字符串YYYYMMDD, 版面号, 文章序号)
         """
         # 如果未指定日期，使用当天日期（中国时区）
         if date_string is None:
@@ -85,12 +85,12 @@ class ArticleContentFetcher:
                 # 检查前一天的md文件是否存在
                 if not os.path.exists(md_filepath):
                     self.logger.error(f"未找到{date_string}或前一天的markdown文件")
-                    return None, date_string
+                    return None, date_string, "01", "01"
                 else:
                     self.logger.info(f"使用前一天的markdown文件: {md_filepath}")
             except ValueError:
                 self.logger.error(f"日期格式无效: {date_string}")
-                return None, date_string
+                return None, date_string, "01", "01"
         
         self.logger.info(f"从markdown文件获取链接: {md_filepath}")
         
@@ -103,6 +103,10 @@ class ArticleContentFetcher:
             pattern = r'## \[01版：.*?\]\(.*?\)(.*?)##'
             match = re.search(pattern, md_content, re.DOTALL)
             
+            # 默认版面号和文章序号
+            version_number = "01"
+            article_number = "01"
+            
             if match:
                 section_content = match.group(1)
                 
@@ -112,18 +116,32 @@ class ArticleContentFetcher:
                 if len(links) >= 1:  # 大于等于一个链接时
                     article_url = links[0][1]
                     article_title = links[0][0]
-                    self.logger.info(f"只找到一条链接: {article_title}, URL: {article_url}")
-                    return article_url, date_string
+                    self.logger.info(f"找到第一条链接: {article_title}, URL: {article_url}")
+                    
+                    # 尝试从URL中提取版面和文章编号
+                    url_pattern = r'node_(\d+)\.html'
+                    version_match = re.search(url_pattern, article_url)
+                    if version_match:
+                        version_number = version_match.group(1)
+                    
+                    # 尝试从文章URL中提取文章编号
+                    content_pattern = r'content_(\d+)\.html'
+                    content_match = re.search(content_pattern, article_url)
+                    if content_match:
+                        # 如果有文章编号，将其作为序号的一部分
+                        article_number = "01"  # 默认为01
+                    
+                    return article_url, date_string, version_number, article_number
                 else:
                     self.logger.error("未在01版找到任何链接")
-                    return None, date_string
+                    return None, date_string, version_number, article_number
             else:
                 self.logger.error("未找到01版部分")
-                return None, date_string
+                return None, date_string, version_number, article_number
                 
         except Exception as e:
             self.logger.error(f"处理markdown文件时出错: {str(e)}")
-            return None, date_string
+            return None, date_string, "01", "01"
     
     def fetch_article_content(self, article_url):
         """获取文章内容
@@ -202,12 +220,14 @@ class ArticleContentFetcher:
             self.logger.error(f"提取文章内容时出错: {str(e)}")
             return None
     
-    def save_article_html(self, html_content, date_string):
+    def save_article_html(self, html_content, date_string, version_number, article_number):
         """保存文章内容为HTML文件
         
         Args:
             html_content (str): 文章HTML内容
             date_string (str): 日期字符串YYYYMMDD
+            version_number (str): 版面号
+            article_number (str): 文章序号
             
         Returns:
             dict: 包含原始HTML和处理后HTML的文件路径信息
@@ -216,8 +236,8 @@ class ArticleContentFetcher:
             'html_path': None
         }
         
-        # 文件名格式：YYYYMMDD.html (与md文件同名)
-        filename = f"{date_string}.html"
+        # 文件名格式：YYYYMMDD-版号序号.html (如: 20250410-0101.html)
+        filename = f"{date_string}-{version_number}{article_number}.html"
         filepath = os.path.join(self.output_dir, filename)
         
         try:
@@ -249,7 +269,7 @@ class ArticleContentFetcher:
         }
         
         # 1. 从md文件获取文章URL
-        article_url, date_string = self.get_article_url_from_md(date_string)
+        article_url, date_string, version_number, article_number = self.get_article_url_from_md(date_string)
         result['date_string'] = date_string
         
         if not article_url:
@@ -278,7 +298,7 @@ class ArticleContentFetcher:
             return result
         
         # 5. 保存HTML内容
-        save_result = self.save_article_html(readable_html, date_string)
+        save_result = self.save_article_html(readable_html, date_string, version_number, article_number)
         result['html_path'] = save_result.get('html_path')
         
         if result['html_path']:
