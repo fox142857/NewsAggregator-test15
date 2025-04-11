@@ -1,0 +1,108 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import os
+import re
+import logging
+from datetime import datetime, timedelta
+import pytz
+
+logger = logging.getLogger("FileFinder")
+
+class FileFinder:
+    """文件查找器
+    
+    在output目录中查找当日或前一日的md文件
+    """
+    
+    def __init__(self, output_dir=None):
+        """初始化文件查找器
+        
+        Args:
+            output_dir (str, optional): 输出目录路径，默认为src/output
+        """
+        if output_dir is None:
+            # 使用默认输出目录
+            self.output_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "output")
+        else:
+            self.output_dir = output_dir
+        
+        # 设置日志
+        if not logger.handlers:
+            handler = logging.StreamHandler()
+            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            handler.setFormatter(formatter)
+            logger.addHandler(handler)
+            logger.setLevel(logging.INFO)
+    
+    def get_current_date(self):
+        """获取当前北京时间的日期字符串
+        
+        Returns:
+            str: 日期字符串，格式为YYYYMMDD
+        """
+        return datetime.now(pytz.timezone('Asia/Shanghai')).strftime('%Y%m%d')
+    
+    def get_yesterday_date(self):
+        """获取前一天北京时间的日期字符串
+        
+        Returns:
+            str: 日期字符串，格式为YYYYMMDD
+        """
+        yesterday = datetime.now(pytz.timezone('Asia/Shanghai')) - timedelta(days=1)
+        return yesterday.strftime('%Y%m%d')
+    
+    def find_matching_files(self):
+        """查找匹配的文件
+        
+        查找当天或前一天日期开头的.md文件
+        
+        Returns:
+            list: 匹配文件的路径列表
+        """
+        # 获取当天日期
+        today_date = self.get_current_date()
+        
+        # 查找当天的匹配文件
+        today_pattern = f"^{today_date}-.*\\.md$"
+        today_files = self._find_files_by_pattern(today_pattern)
+        
+        if today_files:
+            logger.info(f"找到当天({today_date})的匹配文件: {len(today_files)}个")
+            return today_files
+        
+        # 如果当天没有匹配文件，查找前一天的
+        yesterday_date = self.get_yesterday_date()
+        yesterday_pattern = f"^{yesterday_date}-.*\\.md$"
+        yesterday_files = self._find_files_by_pattern(yesterday_pattern)
+        
+        if yesterday_files:
+            logger.info(f"找到前一天({yesterday_date})的匹配文件: {len(yesterday_files)}个")
+            return yesterday_files
+        
+        # 如果都没有找到
+        logger.warning(f"未找到当天({today_date})或前一天({yesterday_date})的匹配文件")
+        return []
+    
+    def _find_files_by_pattern(self, pattern):
+        """根据正则表达式模式查找文件
+        
+        Args:
+            pattern (str): 正则表达式模式
+            
+        Returns:
+            list: 匹配文件的路径列表
+        """
+        matching_files = []
+        
+        try:
+            for filename in os.listdir(self.output_dir):
+                if re.match(pattern, filename):
+                    file_path = os.path.join(self.output_dir, filename)
+                    if os.path.isfile(file_path):
+                        matching_files.append(file_path)
+                        logger.debug(f"找到匹配文件: {filename}")
+        except Exception as e:
+            logger.error(f"查找文件时出错: {str(e)}")
+        
+        return matching_files 

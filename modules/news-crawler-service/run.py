@@ -21,6 +21,7 @@ from src.main import process_news
 from src.crawler.article_fetcher import fetch_first_article
 from src.converter.article_formatter import process_articles
 from src.article_main import process_article
+from src.summarize import run_summarize
 
 def parse_args():
     """解析命令行参数"""
@@ -41,6 +42,11 @@ def parse_args():
     article_parser.add_argument('-o', '--output_dir', help='输出目录路径')
     article_parser.add_argument('-f', '--format', choices=['markdown', 'json', 'all'], 
                               default='markdown', help='输出格式 (默认: markdown)')
+    
+    # AI总结命令
+    summarize_parser = subparsers.add_parser('ai-summarize', help='使用AI总结文章内容')
+    summarize_parser.add_argument('-k', '--api_key', help='DeepSeek API密钥，如未提供则使用DEEPSEEK_API_KEY环境变量')
+    summarize_parser.add_argument('-o', '--output_dir', help='输出目录路径')
     
     # 版本命令
     version_parser = subparsers.add_parser('version', help='显示版本信息')
@@ -98,13 +104,32 @@ def main():
         print(f"[{china_time}] 文章处理任务{'成功' if success else '失败'}")
         
         return 0 if success else 1
+    
+    elif args.command == 'ai-summarize':
+        # 使用中国时间作为日志记录
+        china_time = datetime.now(pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')
+        print(f"[{china_time}] 开始进行文章AI总结...")
+        
+        # 调用summarize模块中的run_summarize函数
+        success = run_summarize(
+            api_key=args.api_key,
+            output_dir=args.output_dir
+        )
+        
+        # 结束时间
+        china_time = datetime.now(pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')
+        print(f"[{china_time}] AI总结任务{'成功' if success else '失败'}")
+        
+        return 0 if success else 1
         
     elif args.command == 'version':
         # 显示版本信息
         from src.crawler import __version__ as crawler_version
         from src.converter import __version__ as converter_version
+        from src.summarize import __version__ as summarize_version
         print(f"人民日报爬虫服务 v{crawler_version}")
         print(f"人民日报转换服务 v{converter_version}")
+        print(f"人民日报AI总结服务 v{summarize_version}")
         return 0
     
     else:
