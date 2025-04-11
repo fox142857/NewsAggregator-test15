@@ -1,6 +1,0 @@
-.specstory/
-__pycache__/
-*.pyc
-.cache/
-.temp/
-node_modules/
