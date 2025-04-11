@@ -4,7 +4,7 @@
 import os
 import logging
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytz
 import re
 from bs4 import BeautifulSoup
@@ -17,7 +17,7 @@ class ArticleContentFetcher:
     """
     人民日报文章内容爬取器
     
-    专门用于爬取第一版面第一篇文章的内容，并保存为HTML文件
+    专门用于爬取指定版面的文章内容，并保存为HTML文件
     """
     
     def __init__(self, base_url="http://paper.people.com.cn/rmrb/pc/layout", output_dir=None):
@@ -56,83 +56,79 @@ class ArticleContentFetcher:
         # 创建文章解析器实例
         self.parser = ArticleParser()
     
-    def get_first_article_url(self, date_tuple=None):
-        """获取指定日期第一版面的第一篇文章URL
+    def get_article_url_from_md(self, date_string=None):
+        """从markdown文件中获取01版的第二条链接
         
         Args:
-            date_tuple (tuple, optional): (年, 月, 日)元组. 默认为None，表示获取当天日期.
+            date_string (str, optional): 日期字符串YYYYMMDD. 默认为None，表示当天.
             
         Returns:
             tuple: (文章URL, 日期字符串YYYYMMDD)
         """
         # 如果未指定日期，使用当天日期（中国时区）
-        if date_tuple is None:
+        if date_string is None:
             today = datetime.now(pytz.timezone('Asia/Shanghai'))
-            year, month, day = today.year, today.month, today.day
             date_string = today.strftime('%Y%m%d')
-        else:
-            year, month, day = date_tuple
-            date_string = f"{year:04d}{month:02d}{day:02d}"
         
-        # 构建第一版面URL
-        version_url = f"{self.base_url}/{year:04d}{month:02d}/{day:02d}/node_01.html"
-        self.logger.info(f"获取第一版面: {version_url}")
+        # 尝试查找指定日期或前一天的markdown文件
+        md_filepath = os.path.join(self.output_dir, f"{date_string}.md")
+        
+        # 检查指定日期的md文件是否存在
+        if not os.path.exists(md_filepath):
+            # 计算前一天的日期
+            try:
+                current_date = datetime.strptime(date_string, '%Y%m%d')
+                prev_date = current_date - timedelta(days=1)
+                date_string = prev_date.strftime('%Y%m%d')
+                md_filepath = os.path.join(self.output_dir, f"{date_string}.md")
+                
+                # 检查前一天的md文件是否存在
+                if not os.path.exists(md_filepath):
+                    self.logger.error(f"未找到{date_string}或前一天的markdown文件")
+                    return None, date_string
+                else:
+                    self.logger.info(f"使用前一天的markdown文件: {md_filepath}")
+            except ValueError:
+                self.logger.error(f"日期格式无效: {date_string}")
+                return None, date_string
+        
+        self.logger.info(f"从markdown文件获取链接: {md_filepath}")
         
         try:
-            # 请求第一版面
-            response = self.session.get(version_url, headers=self.headers)
-            response.raise_for_status()
-            response.encoding = 'utf-8'
+            # 读取markdown文件内容
+            with open(md_filepath, 'r', encoding='utf-8') as f:
+                md_content = f.read()
             
-            # 解析HTML
-            soup = BeautifulSoup(response.text, 'html.parser')
+            # 查找01版部分及其链接
+            pattern = r'## \[01版：.*?\]\(.*?\)(.*?)##'
+            match = re.search(pattern, md_content, re.DOTALL)
             
-            # 尝试多种选择器查找新闻列表
-            news_list = None
-            news_selectors = [
-                "body > div.main.w1000 > div.left.paper-box > div.news > ul",  # 原始选择器
-                ".news-list",  # 类名选择器
-                ".news ul",    # 嵌套选择器
-                "ul.news-list"  # 标签+类名选择器
-            ]
-            
-            for selector in news_selectors:
-                news_list = soup.select_one(selector)
-                if news_list:
-                    self.logger.info(f"找到新闻列表，使用选择器: {selector}")
-                    break
-            
-            # 如果找到了新闻列表，尝试获取第一篇文章的链接
-            if news_list:
-                # 尝试从第一个li元素中获取链接
-                first_news = news_list.find('a', href=True)
-                if first_news:
-                    article_url = urljoin(version_url, first_news['href'])
-                    self.logger.info(f"找到第一篇文章: {first_news.get_text(strip=True)}, URL: {article_url}")
+            if match:
+                section_content = match.group(1)
+                
+                # 从该部分内容中提取所有链接
+                links = re.findall(r'- \[(.*?)\]\((http://.*?)\)', section_content)
+                
+                if len(links) >= 2:  # 确保有至少两个链接
+                    # 获取第二条链接
+                    article_url = links[1][1]
+                    article_title = links[1][0]
+                    self.logger.info(f"找到第二条链接: {article_title}, URL: {article_url}")
                     return article_url, date_string
-            
-            # 如果上面的方法失败，直接在页面上查找所有新闻链接
-            self.logger.info("未能通过新闻列表找到文章，尝试直接在页面查找链接...")
-            
-            # 尝试查找所有内容页面链接
-            content_links = []
-            for link in soup.find_all('a', href=True):
-                href = link['href']
-                # 查找形如 content_*.html 的链接
-                if 'content_' in href and href.endswith('.html'):
-                    content_links.append((link, urljoin(version_url, href)))
-            
-            if content_links:
-                # 取第一个内容链接
-                first_link, article_url = content_links[0]
-                self.logger.info(f"通过直接搜索找到第一篇文章: {first_link.get_text(strip=True) if first_link.get_text(strip=True) else '(无标题)'}, URL: {article_url}")
-                return article_url, date_string
-            
-            self.logger.error("未找到任何文章链接")
-            return None, date_string
-            
-        except requests.exceptions.RequestException as e:
-            self.logger.error(f"获取第一版面失败: {str(e)}")
+                elif len(links) == 1:  # 只有一个链接时
+                    article_url = links[0][1]
+                    article_title = links[0][0]
+                    self.logger.info(f"只找到一条链接: {article_title}, URL: {article_url}")
+                    return article_url, date_string
+                else:
+                    self.logger.error("未在01版找到任何链接")
+                    return None, date_string
+            else:
+                self.logger.error("未找到01版部分")
+                return None, date_string
+                
+        except Exception as e:
+            self.logger.error(f"处理markdown文件时出错: {str(e)}")
             return None, date_string
     
     def fetch_article_content(self, article_url):
@@ -223,43 +219,30 @@ class ArticleContentFetcher:
             dict: 包含原始HTML和处理后HTML的文件路径信息
         """
         result = {
-            'original_html_path': None,
-            'readable_html_path': None
+            'html_path': None
         }
         
-        # 保存原始HTML
-        # 文件名格式：YYYYMMDD-0101.html
-        original_filename = f"{date_string}-0101.html"
-        original_filepath = os.path.join(self.output_dir, original_filename)
-        
-        # 处理后的HTML文件名格式：YYYYMMDD-0101-readable.html
-        readable_filename = f"{date_string}-0101-readable.html"
-        readable_filepath = os.path.join(self.output_dir, readable_filename)
+        # 文件名格式：YYYYMMDD.html (与md文件同名)
+        filename = f"{date_string}.html"
+        filepath = os.path.join(self.output_dir, filename)
         
         try:
-            # 保存原始HTML
-            with open(original_filepath, 'w', encoding='utf-8') as f:
+            # 保存HTML
+            with open(filepath, 'w', encoding='utf-8') as f:
                 f.write(html_content)
-            self.logger.info(f"原始文章HTML已保存到: {original_filepath}")
-            result['original_html_path'] = original_filepath
-            
-            # 使用解析器处理并保存可读性更好的HTML
-            if self.parser.parse_and_save(html_content, readable_filepath):
-                self.logger.info(f"可读性HTML已保存到: {readable_filepath}")
-                result['readable_html_path'] = readable_filepath
-            else:
-                self.logger.warning("生成可读性HTML失败")
+            self.logger.info(f"文章HTML已保存到: {filepath}")
+            result['html_path'] = filepath
             
             return result
         except Exception as e:
             self.logger.error(f"保存文章HTML失败: {str(e)}")
             return result
     
-    def fetch_and_save_first_article(self, date_tuple=None):
-        """获取并保存第一版面第一篇文章
+    def fetch_and_save_article(self, date_string=None):
+        """获取并保存指定的文章
         
         Args:
-            date_tuple (tuple, optional): (年, 月, 日)元组. 默认为None，表示获取当天日期.
+            date_string (str, optional): 日期字符串YYYYMMDD. 默认为None，表示当天.
             
         Returns:
             dict: 包含结果信息的字典
@@ -267,13 +250,12 @@ class ArticleContentFetcher:
         result = {
             'success': False,
             'article_url': None,
-            'original_html_path': None,
-            'readable_html_path': None,
+            'html_path': None,
             'date_string': None
         }
         
-        # 1. 获取第一篇文章的URL
-        article_url, date_string = self.get_first_article_url(date_tuple)
+        # 1. 从md文件获取文章URL
+        article_url, date_string = self.get_article_url_from_md(date_string)
         result['date_string'] = date_string
         
         if not article_url:
@@ -289,22 +271,30 @@ class ArticleContentFetcher:
             self.logger.error("获取文章HTML内容失败")
             return result
         
-        # 3. 保存原始HTML内容和处理后的HTML
-        save_result = self.save_article_html(html_content, date_string)
-        result['original_html_path'] = save_result.get('original_html_path')
-        result['readable_html_path'] = save_result.get('readable_html_path')
+        # 3. 提取文章主体内容
+        article_content = self.extract_article_content(html_content)
+        if not article_content:
+            self.logger.error("提取文章内容失败")
+            return result
         
-        if result['original_html_path']:
+        # 4. 将提取的内容传递给解析器生成完整HTML
+        readable_html = self.parser.generate_readable_html_from_content(article_content, article_url)
+        if not readable_html:
+            self.logger.error("生成可读HTML失败")
+            return result
+        
+        # 5. 保存HTML内容
+        save_result = self.save_article_html(readable_html, date_string)
+        result['html_path'] = save_result.get('html_path')
+        
+        if result['html_path']:
             result['success'] = True
-            self.logger.info(f"成功爬取并保存文章HTML")
-            
-            if result['readable_html_path']:
-                self.logger.info(f"同时生成了可读性更好的HTML版本")
+            self.logger.info(f"成功爬取并保存文章HTML到: {result['html_path']}")
         
         return result
 
 def fetch_first_article(date=None, output_dir=None):
-    """获取并保存第一版面第一篇文章的外部接口函数
+    """获取并保存文章的外部接口函数
     
     Args:
         date (str, optional): 日期字符串，格式YYYYMMDD. 默认为None，表示当天日期.
@@ -316,17 +306,5 @@ def fetch_first_article(date=None, output_dir=None):
     # 实例化爬虫对象
     fetcher = ArticleContentFetcher(output_dir=output_dir)
     
-    # 如果指定了日期，解析日期
-    date_tuple = None
-    if date:
-        try:
-            year = int(date[:4])
-            month = int(date[4:6])
-            day = int(date[6:8])
-            date_tuple = (year, month, day)
-        except (ValueError, IndexError):
-            logging.error(f"日期格式无效: {date}，应为YYYYMMDD")
-            return {'success': False, 'error': '日期格式无效'}
-    
     # 执行获取和保存操作
-    return fetcher.fetch_and_save_first_article(date_tuple) 
+    return fetcher.fetch_and_save_article(date) 

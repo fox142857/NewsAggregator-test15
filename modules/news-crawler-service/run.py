@@ -31,6 +31,7 @@ def parse_args():
     crawl_parser = subparsers.add_parser('crawl', help='爬取新闻')
     crawl_parser.add_argument('-d', '--date', help='指定日期，格式: YYYYMMDD，默认为今天')
     crawl_parser.add_argument('-o', '--output_dir', help='输出目录路径')
+    crawl_parser.add_argument('--only-article', action='store_true', help='只爬取文章详情，跳过版面爬取')
     
     # 版本命令
     version_parser = subparsers.add_parser('version', help='显示版本信息')
@@ -46,22 +47,24 @@ def main():
         china_time = datetime.now(pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')
         print(f"[{china_time}] 开始爬取人民日报新闻...")
         
-        # 执行新闻处理流程
-        success = process_news(date=args.date, output_dir=args.output_dir)
+        success = True
+        # 如果不是只爬取文章，则先执行版面爬取
+        if not args.only_article:
+            # 执行新闻处理流程
+            success = process_news(date=args.date, output_dir=args.output_dir)
         
-        # 如果过程成功，继续爬取第一篇文章的详细内容
-        if success:
-            china_time = datetime.now(pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')
-            print(f"[{china_time}] 开始爬取第一版面第一篇新闻的详细内容...")
-            
-            # 爬取第一篇文章
-            article_result = fetch_first_article(date=args.date, output_dir=args.output_dir)
-            
-            if article_result['success']:
-                print(f"文章爬取成功! 保存至: {article_result['readable_html_path']}")
-            else:
-                print("文章爬取失败")
-                success = False
+        # 无论上一步是否成功，都尝试爬取文章详情
+        china_time = datetime.now(pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')
+        print(f"[{china_time}] 开始爬取第一版面指定新闻的详细内容...")
+        
+        # 爬取文章
+        article_result = fetch_first_article(date=args.date, output_dir=args.output_dir)
+        
+        if article_result['success']:
+            print(f"文章爬取成功! 保存至: {article_result['html_path']}")
+        else:
+            print("文章爬取失败")
+            success = False
         
         # 结束时间
         china_time = datetime.now(pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')

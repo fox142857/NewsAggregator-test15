@@ -169,6 +169,63 @@ class ArticleParser:
             self.logger.error(f"解析文章时出错: {str(e)}")
             return None
     
+    def parse_article_content(self, article_content, original_url=""):
+        """
+        解析已提取的文章内容
+        
+        Args:
+            article_content (str): 已提取的文章内容HTML
+            original_url (str): 原始文章URL
+            
+        Returns:
+            dict: 解析后的文章信息，包含标题、正文等
+        """
+        self.logger.info("开始解析提取的文章内容")
+        
+        if not article_content:
+            self.logger.error("输入的文章内容为空")
+            return None
+        
+        try:
+            soup = BeautifulSoup(article_content, 'html.parser')
+            
+            # 尝试提取标题(可能已经提取出来的内容中没有标题)
+            title = "人民日报文章"
+            title_elements = soup.find_all(['h1', 'h2', 'h3'])
+            if title_elements:
+                for elem in title_elements:
+                    if elem.get_text(strip=True):
+                        title = elem.get_text(strip=True)
+                        break
+            
+            # 尝试从URL提取日期
+            date = ""
+            date_match = re.search(r'/(\d{6})/(\d{2})/', original_url)
+            if date_match:
+                year_month = date_match.group(1)
+                day = date_match.group(2)
+                date = f"{year_month[:4]}年{year_month[4:6]}月{day}日"
+            else:
+                # 使用当前日期
+                date = datetime.now(pytz.timezone('Asia/Shanghai')).strftime('%Y年%m月%d日')
+            
+            # 对于剩余字段使用默认值
+            article_info = {
+                'title': title,
+                'author': "人民日报",
+                'date': date,
+                'version': "01版",
+                'content': article_content,
+                'original_url': original_url
+            }
+            
+            self.logger.info(f"成功解析文章内容：{title}")
+            return article_info
+            
+        except Exception as e:
+            self.logger.error(f"解析文章内容时出错: {str(e)}")
+            return None
+    
     def generate_readable_html(self, article_info):
         """
         根据解析的文章信息生成可读性更好的HTML
@@ -290,6 +347,26 @@ class ArticleParser:
         except Exception as e:
             self.logger.error(f"生成HTML时出错: {str(e)}")
             return ""
+    
+    def generate_readable_html_from_content(self, article_content, original_url=""):
+        """
+        直接从提取的文章内容生成可读性更好的HTML
+        
+        Args:
+            article_content (str): 已提取的文章内容HTML
+            original_url (str): 原始文章URL
+            
+        Returns:
+            str: 生成的HTML内容
+        """
+        # 解析文章内容
+        article_info = self.parse_article_content(article_content, original_url)
+        if not article_info:
+            self.logger.error("文章内容解析失败")
+            return None
+        
+        # 生成HTML
+        return self.generate_readable_html(article_info)
     
     def parse_and_save(self, html_content, output_path):
         """
