@@ -40,7 +40,7 @@ export default defineUserConfig({
             }
         ],
         
-        repo: "https://github.com/fox142857/NewsAggregator-test12",
+        repo: "https://github.com/fox142857/NewsAggregator-test15",
         repoLabel: '查看源码',
     }),
 })
