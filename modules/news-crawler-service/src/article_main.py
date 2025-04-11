@@ -10,7 +10,7 @@ import pytz  # 添加pytz库导入
 
 # 导入自定义模块
 from crawler.article_main import crawl_article
-from converter.article_converter import convert_article
+from converter.article_main import convert_article
 
 # 配置日志
 logging.basicConfig(
