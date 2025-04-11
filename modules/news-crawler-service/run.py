@@ -12,6 +12,7 @@ import sys
 import argparse
 from datetime import datetime
 import pytz  # 添加pytz库导入
+import logging  # 添加logging模块导入
 
 # 将src目录添加到模块搜索路径
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'src'))
@@ -22,6 +23,7 @@ from src.crawler.article_fetcher import fetch_first_article
 from src.converter.article_formatter import process_articles
 from src.article_main import process_article
 from src.summarize import run_summarize
+from src.summarize.file_finder import FileFinder
 
 def parse_args():
     """解析命令行参数"""
@@ -49,6 +51,11 @@ def parse_args():
     summarize_parser.add_argument('-o', '--output_dir', help='输出目录路径')
     summarize_parser.add_argument('-m', '--mock', action='store_true', help='使用模拟模式，不调用实际API')
     summarize_parser.add_argument('-v', '--verbose', action='store_true', help='输出详细日志')
+    
+    # 文件查找命令
+    find_files_parser = subparsers.add_parser('find-files', help='查找当天或前一天的新闻文件')
+    find_files_parser.add_argument('-o', '--output_dir', help='输出目录路径')
+    find_files_parser.add_argument('-v', '--verbose', action='store_true', help='输出详细日志')
     
     # 版本命令
     version_parser = subparsers.add_parser('version', help='显示版本信息')
@@ -114,7 +121,6 @@ def main():
         
         # 设置日志级别
         if hasattr(args, 'verbose') and args.verbose:
-            import logging
             logging.basicConfig(level=logging.INFO)
         
         # 调用summarize模块中的run_summarize函数
@@ -129,6 +135,49 @@ def main():
         print(f"[{china_time}] AI总结任务{'成功' if success else '失败'}")
         
         return 0 if success else 1
+    
+    elif args.command == 'find-files':
+        # 使用中国时间作为日志记录
+        china_time = datetime.now(pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')
+        print(f"[{china_time}] 开始查找新闻文件...")
+        
+        # 设置日志级别
+        if hasattr(args, 'verbose') and args.verbose:
+            logging.basicConfig(level=logging.DEBUG)
+        else:
+            logging.basicConfig(level=logging.INFO)
+        
+        try:
+            # 创建文件查找器实例
+            finder = FileFinder(output_dir=args.output_dir)
+            
+            # 查找匹配的文件
+            print(f"正在查找匹配的文件...")
+            matching_files = finder.find_matching_files()
+            
+            # 显示结果
+            if matching_files:
+                print(f"\n找到 {len(matching_files)} 个匹配的文件:")
+                for i, file_path in enumerate(matching_files, 1):
+                    print(f"{i}. {os.path.basename(file_path)} ({os.path.getsize(file_path)} 字节)")
+            else:
+                print("未找到匹配的文件。")
+            
+            # 输出当前和昨天的日期 (用于调试)
+            print(f"\n当前日期: {finder.get_current_date()}")
+            print(f"昨天日期: {finder.get_yesterday_date()}")
+            
+            # 结束时间
+            china_time = datetime.now(pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')
+            print(f"[{china_time}] 文件查找任务成功")
+            
+            return 0
+        except Exception as e:
+            print(f"错误: {str(e)}")
+            # 结束时间
+            china_time = datetime.now(pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')
+            print(f"[{china_time}] 文件查找任务失败")
+            return 1
         
     elif args.command == 'version':
         # 显示版本信息
