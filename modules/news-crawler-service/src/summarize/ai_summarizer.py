@@ -202,12 +202,20 @@ class AISummarizer:
             # 提取原始元数据
             original_metadata = summary_data['original_content'].get('metadata', {})
             
+            # 查找原文链接 - 在人民日报today-news.md中寻找对应标题的链接
+            title = original_metadata.get('title', '未知标题')
+            original_link = self._find_news_link(title)
+            if not original_link:
+                # 如果未找到对应链接，使用文件名作为链接
+                original_link = original_file
+            
             # 创建总结内容
             content = "---\n"
             content += f"title: \"AI总结: {original_metadata.get('title', '未知标题')}\"\n"
             content += f"original_title: \"{original_metadata.get('title', '未知标题')}\"\n"
             content += f"date: {original_metadata.get('date', datetime.now(pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d'))}\n"
             content += f"source: {original_metadata.get('source', '人民日报')}\n"
+            content += f"sidebar: false\n"
             content += f"summarized_at: {summary_data['timestamp']}\n"
             
             # 添加token使用情况
@@ -225,7 +233,10 @@ class AISummarizer:
             
             # 添加原文链接
             content += "---\n\n"
-            content += f"*原文: [{original_file}]({original_file})*\n"
+            content += f"*原文: [{title}]({original_link})*\n\n"
+            
+            # 添加AI总结提示
+            content += "*以上内容通过AI自动总结生成，请注意AI可能存在错误或偏差，仅供参考，建议阅读原文获取完整信息。*"
             
             # 保存文件
             with open(output_path, 'w', encoding='utf-8') as f:
@@ -237,6 +248,48 @@ class AISummarizer:
         except Exception as e:
             logger.error(f"保存总结内容时出错: {str(e)}")
             return None
+    
+    def _find_news_link(self, title):
+        """查找新闻标题对应的链接
+        
+        从人民日报today-news.md文件中查找对应标题的链接
+        
+        Args:
+            title (str): 文章标题
+            
+        Returns:
+            str: 对应的链接，如未找到则返回空字符串
+        """
+        try:
+            # 尝试找到today-news.md文件
+            docs_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))), 
+                                  "news-vuepress-docs", "docs", "today")
+            today_news_path = os.path.join(docs_dir, "today-news.md")
+            
+            if not os.path.exists(today_news_path):
+                logger.warning(f"未找到today-news.md文件: {today_news_path}")
+                return ""
+                
+            with open(today_news_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+                
+            # 在content中查找标题及其链接
+            # 标题格式通常为: - [标题](链接)
+            for line in content.split('\n'):
+                if line.startswith('- [') and title in line:
+                    # 提取链接
+                    match = re.search(r'\[(.*?)\]\((.*?)\)', line)
+                    if match:
+                        link_title = match.group(1)
+                        link_url = match.group(2)
+                        logger.info(f"找到文章链接: {link_title} -> {link_url}")
+                        return link_url
+                
+            logger.warning(f"未找到文章标题对应的链接: {title}")
+            return ""
+        except Exception as e:
+            logger.error(f"查找文章链接时出错: {str(e)}")
+            return ""
     
     def _generate_fixed_prompt(self, content_data):
         """生成固定格式的提示词

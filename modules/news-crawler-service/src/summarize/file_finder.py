@@ -99,15 +99,22 @@ class FileFinder:
         
         try:
             for filename in os.listdir(self.output_dir):
+                # 检查文件是否匹配模式（日期开头）
                 if re.match(pattern, filename):
-                    file_path = os.path.join(self.output_dir, filename)
-                    if os.path.isfile(file_path):
-                        matching_files.append(file_path)
-                        logger.debug(f"找到匹配文件: {filename}")
+                    # 检查文件是否符合YYYYMMDD-XXXX.md格式
+                    # 允许使用格式如20250412-0101.md的文件
+                    if re.match(r'^\d{8}-\d{4}\.md$', filename):
+                        file_path = os.path.join(self.output_dir, filename)
+                        if os.path.isfile(file_path):
+                            matching_files.append(file_path)
+                            logger.debug(f"找到匹配文件: {filename}")
+                    else:
+                        # 记录不符合格式的文件，但是使用INFO级别而不是DEBUG级别
+                        logger.info(f"文件名格式不符合要求，已排除: {filename}")
         except Exception as e:
             logger.error(f"查找文件时出错: {str(e)}")
         
-        return matching_files 
+        return matching_files
 
 if __name__ == "__main__":
     # 配置命令行参数
