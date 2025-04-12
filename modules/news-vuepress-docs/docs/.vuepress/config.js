@@ -15,7 +15,7 @@ export default defineUserConfig({
 
     head: [
         // 站点图标
-        ["link", { rel: "icon", href: "/ico/main-logo.svg" }],
+        ["link", { rel: "icon", href: "/NewsAggregator-test15/ico/main-logo.svg" }],
     ],
     
     plugins: [
