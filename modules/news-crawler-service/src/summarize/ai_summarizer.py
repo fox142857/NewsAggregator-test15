@@ -232,7 +232,6 @@ class AISummarizer:
             content += summary_data['summary'] + "\n\n"
             
             # 添加原文链接
-            content += "---\n\n"
             content += f"*原文: [{title}]({original_link})*\n\n"
             
             # 添加AI总结提示
@@ -308,14 +307,14 @@ class AISummarizer:
 {content}
 ```
 帮我总结以上新闻内容，字数控制在200左右，结果以以下模板输出：
-```
-时间：
-地点：
-人物：
-事件：
-起因：
-结果：
-```
+---
+- 时间：
+- 地点：
+- 人物：
+- 事件：
+- 起因：
+- 结果：
+---
 直接输出结果，不要有任何多余的内容。
 """
         return prompt
