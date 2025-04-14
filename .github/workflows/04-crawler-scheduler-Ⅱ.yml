@@ -50,6 +50,11 @@ jobs:
             exit 1
           fi
 
+      - name: Set up Git identity for crawler-service branch
+        run: |
+          git config --global user.name "fox142857"
+          git config --global user.email "fox142857@foxmail.com"
+
       - name: Commit new article output on crawler-service branch
         run: |
           git add modules/news-crawler-service/src/output/
@@ -63,6 +68,11 @@ jobs:
           git checkout master
           find . -type d -name "__pycache__" -exec rm -rf {} +
           find . -name "*.pyc" -delete
+
+      - name: (Optional) Set up Git identity for master branch merge
+        run: |
+          git config --global user.name "fox142857"
+          git config --global user.email "fox142857@foxmail.com"
 
       - name: Merge changes from crawler-service branch into master
         run: |
