@@ -1,0 +1,67 @@
+name: cleanup-output
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        branch: [master, crawler-service]
+    steps:
+      - name: Checkout ${{ matrix.branch }} branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ matrix.branch }}
+          token: ${{ secrets.GH_TOKEN }}
+      
+      - name: Set up timezone and determine dates
+        shell: bash
+        run: |
+          export TZ='Asia/Shanghai'
+          TODAY=$(date +'%Y%m%d')
+          YESTERDAY=$(date -d "yesterday" +'%Y%m%d')
+          echo "TODAY=$TODAY"
+          echo "YESTERDAY=$YESTERDAY"
+          echo "TODAY=$TODAY" >> $GITHUB_ENV
+          echo "YESTERDAY=$YESTERDAY" >> $GITHUB_ENV
+      
+      - name: Delete outdated files from output directory
+        shell: bash
+        run: |
+          export TZ='Asia/Shanghai'
+          echo "Cleaning up files in modules/news-crawler-service/src/output..."
+          # 查找不以当天和昨天日期开头的文件
+          FILES=$(find modules/news-crawler-service/src/output -maxdepth 1 -type f ! -name "${TODAY}*" ! -name "${YESTERDAY}*")
+          if [ -n "$FILES" ]; then
+            echo "Deleting files:"
+            echo "$FILES"
+            echo "$FILES" | xargs rm -f
+          else
+            echo "No files to delete."
+          fi
+      
+      - name: Check for changes
+        id: changes
+        shell: bash
+        run: |
+          git add modules/news-crawler-service/src/output
+          if git diff-index --quiet HEAD; then
+            echo "No changes detected."
+            echo "::set-output name=changed::false"
+          else
+            echo "Changes detected."
+            echo "::set-output name=changed::true"
+          fi
+      
+      - name: Commit and push cleanup changes
+        if: steps.changes.outputs.changed == 'true'
+        shell: bash
+        run: |
+          git config --global user.name "fox142857"
+          git config --global user.email "fox142857@foxmail.com"
+          git commit -m "Cleanup output folder: remove outdated files [skip ci]"
+          git push origin ${{ matrix.branch }}

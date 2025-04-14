@@ -1,0 +1,60 @@
+name: file-checker-html-md
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  check-files:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout master branch
+        uses: actions/checkout@v3
+        with:
+          ref: master
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Check for HTML and Markdown files with today's date
+        id: check_files
+        shell: bash
+        run: |
+          export TZ='Asia/Shanghai'
+          TODAY=$(date +'%Y%m%d')
+          echo "Today is: $TODAY"
+          HTML_FILE=$(ls modules/news-crawler-service/src/output/${TODAY}-[0-9][0-9][0-9][0-9].html 2>/dev/null || true)
+          MD_FILE=$(ls modules/news-crawler-service/src/output/${TODAY}-[0-9][0-9][0-9][0-9].md 2>/dev/null || true)
+          if [ -n "$HTML_FILE" ] && [ -n "$MD_FILE" ]; then
+            echo "Found HTML file: $HTML_FILE"
+            echo "Found Markdown file: $MD_FILE"
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "Missing HTML and/or Markdown file."
+            if [ -z "$HTML_FILE" ]; then
+              echo "HTML file not found."
+            fi
+            if [ -z "$MD_FILE" ]; then
+              echo "Markdown file not found."
+            fi
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Send email alert for file check result
+        run: |
+          WORKFLOW_FILE="file-checker-html-md.yml"
+          if [ "${{ steps.check_files.outputs.exists }}" = "true" ]; then
+            ORIGINAL_SUBJECT="${WORKFLOW_FILE}: Both HTML and Markdown files exist"
+            CLASSIFICATION="Info"
+            DETAIL="Result: Both HTML and Markdown files with today's date are present."
+          else
+            ORIGINAL_SUBJECT="${WORKFLOW_FILE}: Missing HTML and/or Markdown file"
+            CLASSIFICATION="Warn"
+            DETAIL="Result: One or both files (HTML or Markdown) with today's date are missing."
+          fi
+          FINAL_SUBJECT="Workflow Alert: ${CLASSIFICATION}"
+          FINAL_BODY="${WORKFLOW_FILE}\n${ORIGINAL_SUBJECT}\n${DETAIL}"
+          curl -X POST \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
+            https://api.github.com/repos/${{ github.repository }}/dispatches \
+            -d "{\"event_type\": \"send-email-alert\", \"client_payload\": {\"subject\": \"${FINAL_SUBJECT}\", \"body\": \"${FINAL_BODY}\"}}"
