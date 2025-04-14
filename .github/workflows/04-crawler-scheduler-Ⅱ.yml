@@ -50,6 +50,34 @@ jobs:
             exit 1
           fi
 
+      - name: Commit new article output on crawler-service branch
+        run: |
+          git add modules/news-crawler-service/src/output/
+          git commit -m "Update get-article output on crawler-service branch [skip ci]" || echo "No changes to commit"
+          git push origin crawler-service
+
+      - name: Checkout master branch
+        run: |
+          git fetch origin master
+          git reset --hard HEAD
+          git checkout master
+          find . -type d -name "__pycache__" -exec rm -rf {} +
+          find . -name "*.pyc" -delete
+
+      - name: Merge changes from crawler-service branch into master
+        run: |
+          set -e
+          if ! git merge -X theirs --allow-unrelated-histories --no-ff crawler-service -m "Merge get-article output into master [skip ci]"; then
+            echo "Merge conflict detected. Auto-resolving all conflicts in output directory..."
+            git checkout --theirs modules/news-crawler-service/src/output/
+            git add modules/news-crawler-service/src/output/
+            git commit -m "Auto-resolve merge conflicts for output directory files based on crawler-service branch [skip ci]"
+          fi
+
+      - name: Push to master branch
+        run: |
+          git push origin master
+
       - name: Trigger ai-summarize workflow
         if: success()
         run: |
@@ -66,7 +94,7 @@ jobs:
           if [ "${{ job.status }}" = "Success" ]; then
             ORIGINAL_SUBJECT="${WORKFLOW_FILE}: Get-article succeeded"
             CLASSIFICATION="Info"
-            DETAIL="Result: The get-article command ran successfully."
+            DETAIL="Result: The get-article command ran successfully and output was updated."
           else
             ORIGINAL_SUBJECT="${WORKFLOW_FILE}: Get-article failed"
             CLASSIFICATION="Warn"
