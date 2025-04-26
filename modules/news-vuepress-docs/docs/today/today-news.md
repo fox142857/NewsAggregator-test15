@@ -1,97 +1,84 @@
 ---
-title: 人民日报 - 2025年04月26日
+title: 人民日报 - 2025年04月27日
 description: 全版面新闻汇总
 sidebar: auto
 ---
 
-# 人民日报 - 2025年04月26日
+# 人民日报 - 2025年04月27日
 
 全版面新闻汇总
 
-## [01版：要闻](http://paper.people.com.cn/rmrb/pc/layout/202504/26/node_01.html)
+## [01版：要闻](http://paper.people.com.cn/rmrb/pc/layout/202504/27/node_01.html)
 
-- [分析研究当前经济形势和经济工作](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070063.html)
-- [学有质量  查有力度  改有成效（锲而不舍落实中央八项规定精神）](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070064.html)
-- [江苏因地制宜发展新质生产力（奋勇争先，决战决胜“十四五”）](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070065.html)
-- [神舟二十号3名航天员顺利进驻中国空间站](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070066.html)
-- [图片报道](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070067.html)
-- [为什么中国意味着确定性、未来性、机遇性](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070068.html)
+- [坚持自立自强 突出应用导向 推动人工智能健康有序发展](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070122.html)
+- [聚力攻坚  协同发力](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070123.html)
+- [广东全力推动外贸稳量提质（奋勇争先，决战决胜“十四五”）](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070124.html)
+- [光荣属于每一个挺膺担当的奋斗者](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070125.html)
+- [图片报道](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070126.html)
+- [规范涉企执法，怎样防止问题反弹、提振企业信心？（读者点题·共同关注）](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070127.html)
+- [在“统筹”二字上用力（今日谈）](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070128.html)
+- [导读](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070129.html)
 
-## [02版：要闻](http://paper.people.com.cn/rmrb/pc/layout/202504/26/node_02.html)
+## [02版：要闻](http://paper.people.com.cn/rmrb/pc/layout/202504/27/node_02.html)
 
-- [习近平主席首次访问美国艾奥瓦州40周年纪念活动在得梅因举行](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070069.html)
-- [推动共建清洁、美丽、可持续的世界](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070070.html)
-- [亲诚惠容  命运与共（和音）](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070071.html)
-- [中哈举行第二次外长战略对话](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070072.html)
-- [彭清华会见希腊议会国防与外事委员会代表团](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070073.html)
-- [中国人民对外友好协会代表团访问美国](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070074.html)
-- [柬中合作承载两国人民对美好生活的共同向往（国际论坛）](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070075.html)
-- [《铁线礁、牛轭礁珊瑚礁生态系统调查报告》在京发布](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070076.html)
-- [高度赞赏阿盟外长理事会会议通过对华友好决议](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070077.html)
-- [纪念万隆会议70周年国际研讨会在印尼举行](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070078.html)
-- [中老合资券商在老挝上市](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070079.html)
+- [稳，开局良好看信心](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070130.html)
+- [十七条举措促青年就业创业](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070131.html)
+- [促进家政服务消费扩容升级](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070132.html)
+- [光荣属于每一个挺膺担当的奋斗者](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070133.html)
+- [一版责编：许  诺  赵  政  殷  乐  二版责编：蒋雪婕  郭雪岩  孙海天  三版责编：吴  刚  周  輖  李安琪  四版责编：袁振喜  张佳莹  陈  震](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070134.html)
 
-## [03版：要闻](http://paper.people.com.cn/rmrb/pc/layout/202504/26/node_03.html)
+## [03版：要闻](http://paper.people.com.cn/rmrb/pc/layout/202504/27/node_03.html)
 
-- [到2030年力争建成高标准农田13.5亿亩（政策解读）](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070080.html)
-- [一季度上海经济起步平稳开局良好](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070081.html)
-- [肖捷率全国人大常委会调研组在黑龙江调研](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070082.html)
-- [广交会首设集成房屋专区](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070083.html)
-- [消费品以旧换新超1.2亿人次受益](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070084.html)
-- [全国政协“委员科学讲堂”以“藏在海水里的气候拯救计划”为题举办科普讲座](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070085.html)
-- [学有质量  查有力度  改有成效（锲而不舍落实中央八项规定精神）](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070086.html)
-- [我国风电光伏装机首超火电](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070087.html)
+- [凝聚共识  同心共筑命运共同体](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070135.html)
+- [美以芬太尼为借口滥施关税，纯属“内病外治”（钟声）](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070136.html)
+- [中国—中亚外长第六次会晤新闻公报](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070137.html)
+- [中国—中亚外长举行第六次会晤](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070138.html)
+- [广东全力推动外贸稳量提质（奋勇争先，决战决胜“十四五”）](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070139.html)
 
-## [04版：要闻](http://paper.people.com.cn/rmrb/pc/layout/202504/26/node_04.html)
+## [04版：要闻](http://paper.people.com.cn/rmrb/pc/layout/202504/27/node_04.html)
 
-- [我国将进一步加大知识产权保护力度（权威发布）](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070088.html)
-- [“学习《习近平经济文选》第一卷”金融专题理论宣传座谈会在京举办](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070089.html)
-- [通报拟审议的法律草案情况](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070090.html)
-- [为什么中国意味着确定性、未来性、机遇性](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070091.html)
-- [一版责编：许  诺  张帅祯  殷  乐  二版责编：吴  刚  姜  波  周  輖  三版责编：蒋雪婕  郭雪岩  孙海天  四版责编：袁振喜  杨烁壁  陈  震](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070092.html)
+- [推动绿色低碳发展  助力中国式现代化](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070140.html)
+- [十二次刷新世界纪录（光荣属于劳动者）](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070141.html)
+- [聚力攻坚  协同发力](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070142.html)
+- [以法治力量服务黄河流域生态保护和高质量发展](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070143.html)
+- [蜀道考古调查阶段性成果发布](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070144.html)
 
-## [05版：科技·新知](http://paper.people.com.cn/rmrb/pc/layout/202504/26/node_05.html)
+## [05版：党建](http://paper.people.com.cn/rmrb/pc/layout/202504/27/node_05.html)
 
-- [请查收，太空漫游指南（瞰前沿）](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070093.html)
-- [用月壤建“月宫”还遥远吗？](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070094.html)
-- [火星可能是第二个“地球”吗？](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070095.html)
-- [宇宙在加速膨胀吗？](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070096.html)
-- [暗物质不“暗”会怎样（唠“科”）](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070097.html)
-- [学术眼](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070098.html)
-- [本版责编：肖  遥  曹雪盟  董映雪](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070099.html)
+- [整治物业管理乱象，靶向发力（前沿观察·清风正气在身边⑤）](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070145.html)
+- [不该吃的饭不吃（金台潮声·作风建设系列谈⑤）](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070146.html)
+- [清理河道 扮靓乡村](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070147.html)
+- [链上聚合力 产业添活力](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070148.html)
+- [​一所乡镇党校的耕耘印记（党旗在基层一线高高飘扬）](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070149.html)
+- [本版责编：赵  成](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070150.html)
 
-## [06版：文化遗产](http://paper.people.com.cn/rmrb/pc/layout/202504/26/node_06.html)
+## [06版：国防](http://paper.people.com.cn/rmrb/pc/layout/202504/27/node_06.html)
 
-- [见物 见“人” 见生活](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070100.html)
-- [抗联歌集里的历史图景（以物鉴史）](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070101.html)
-- [呵护城市遗产的烟火气（博古知今）](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070102.html)
-- [人类共同的音乐记忆](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070103.html)
-- [河间歌咏越千年（说说我家乡的非遗）](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070104.html)
-- [佛光寺的文化景观有了双重呵护](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070105.html)
-- [本版责编：任姗姗](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070106.html)
+- [用青春守护祖国山河（强军路上·探访边关一线）](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070151.html)
+- [为退役军人就业“架桥铺路”（金台点兵）](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070152.html)
+- [托举战鹰安全飞行（兵之声）](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070153.html)
+- [在远海大洋练兵（定格）](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070154.html)
+- [本版责编：金正波](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070155.html)
 
-## [07版：综合](http://paper.people.com.cn/rmrb/pc/layout/202504/26/node_07.html)
+## [07版：人文](http://paper.people.com.cn/rmrb/pc/layout/202504/27/node_07.html)
 
-- [“空中的士”飞入现实（探访）](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070107.html)
-- [多款飞行汽车亮相（链接）](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070108.html)
-- [加强专利保护运用  促进创新驱动发展](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070109.html)
-- [守正创新与党的创新理论体系化学理化研讨会在京举行](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070110.html)
-- [湖北推出“神武峡”“赤黄红”两大文旅主轴](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070111.html)
-- [江苏因地制宜发展新质生产力（奋勇争先，决战决胜“十四五”）](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070112.html)
-- [本版责编：刘  念  郭  玥  祝佳祺](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070113.html)
+- [读取楚汉文化的千年“存储卡”（文化中国行·走进专题博物馆）](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070156.html)
+- [门楣之上家国情（人文茶座）](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070157.html)
+- [桑蚕老手艺  时尚新故事（传承）](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070158.html)
+- [本版责编：李卓尔](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070159.html)
 
-## [08版：副刊](http://paper.people.com.cn/rmrb/pc/layout/202504/26/node_08.html)
+## [08版：副刊](http://paper.people.com.cn/rmrb/pc/layout/202504/27/node_08.html)
 
-- [从一台机器开始（我与一座城）](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070114.html)
-- [断续之美（文思）](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070115.html)
-- [小胡同里的北京味](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070116.html)
-- [图片报道](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070117.html)
-- [釉色密码](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070118.html)
-- [连翘花开](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070119.html)
-- [珠穆朗玛“群山”](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070120.html)
-- [本版责编：张  健  马  涌](http://paper.people.com.cn/rmrb/pc/content/202504/26/content_30070121.html)
+- [为民族呐喊的抗战强音（抗战文艺作品巡礼）](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070160.html)
+- [劳动美学回归生命体验（艺坛走笔）](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070161.html)
+- [太空美术演绎极致浪漫](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070162.html)
+- [图片报道](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070163.html)
+- [当画法遇上算法](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070164.html)
+- [图片报道](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070165.html)
+- [艺术破界怎样发力](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070166.html)
+- [本版责编：徐红梅  马苏薇](http://paper.people.com.cn/rmrb/pc/content/202504/27/content_30070168.html)
 
 ---
 
 数据来源: 人民日报 - [http://paper.people.com.cn](http://paper.people.com.cn)  
-爬取时间: 2025-04-26 05:29:49 (北京时间)
+爬取时间: 2025-04-27 05:30:52 (北京时间)
